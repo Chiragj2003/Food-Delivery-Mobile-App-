@@ -1,5 +1,5 @@
 import {View, Text, TextInput} from 'react-native'
-import {CustomInputProps} from '@/type'                        
+import {CustomInputProps} from "@/type";
 import {useState} from "react";
 import cn from "clsx";
 
@@ -21,7 +21,7 @@ const CustomInput = ({
             <TextInput
                 autoCapitalize="none"
                 autoCorrect={false}
-                value={value}               
+                value={value}
                 onChangeText={onChangeText}
                 secureTextEntry={secureTextEntry}
                 keyboardType={keyboardType}

@@ -1,7 +1,7 @@
 {
   "servers": {
     "Sentry": {
-      "url": "https://mcp.sentry.dev/mcp/cj-rh/react-native",
+      "url": "https://mcp.sentry.dev/mcp/cj-rh/react-native-food-delivery",
       "type": "http"
     }
   }

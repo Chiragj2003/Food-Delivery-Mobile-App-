@@ -1,26 +1,24 @@
 import {Account, Avatars, Client, Databases, ID, Query, Storage} from "react-native-appwrite";
 import {CreateUserParams, GetMenuParams, SignInParams} from "@/type";
 
-
 export const appwriteConfig = {
-    endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT ,
-    platform :"com.jsm.foodordering",
-    projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID ,
-    databaseId: "68aea51a002b55eddf26",
-    userCollectionId: "user",
-   // needed to be changed
-    categoriesCollectionId: '68643a390017b239fa0f',
-    menuCollectionId: '68643ad80027ddb96920',
-    customizationsCollectionId: '68643c0300297e5abc95',
-    menuCustomizationsCollectionId: '68643cd8003580ecdd8f'
-}  
-
+    endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT!,
+    projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!,
+    platform: "com.jsm.foodordering",
+    databaseId: '68aea51a002b55eddf26',
+    bucketId: '68d106b90009851af244',
+    userCollectionId: 'user',
+    categoriesCollectionId: 'categories',
+    menuCollectionId: 'menu',
+    customizationsCollectionId: 'customization',
+    menuCustomizationsCollectionId: 'menucustomizations'
+}
 
 export const client = new Client();
 
 client
-    .setEndpoint(appwriteConfig.endpoint!)
-    .setProject(appwriteConfig.projectId!)
+    .setEndpoint(appwriteConfig.endpoint)
+    .setProject(appwriteConfig.projectId)
     .setPlatform(appwriteConfig.platform)
 
 export const account = new Account(client);
@@ -66,12 +64,44 @@ export const getCurrentUser = async () => {
             appwriteConfig.userCollectionId,
             [Query.equal('accountId', currentAccount.$id)]
         )
-                        
+
         if(!currentUser) throw Error;
 
         return currentUser.documents[0];
     } catch (e) {
         console.log(e);
+        throw new Error(e as string);
+    }
+}
+
+export const getMenu = async ({ category, query }: GetMenuParams) => {
+    try {
+        const queries: string[] = [];
+
+        if(category) queries.push(Query.equal('categories', category));
+        if(query) queries.push(Query.search('name', query));
+
+        const menus = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.menuCollectionId,
+            queries,
+        )
+
+        return menus.documents;
+    } catch (e) {
+        throw new Error(e as string);
+    }
+}
+
+export const getCategories = async () => {
+    try {
+        const categories = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.categoriesCollectionId,
+        )
+
+        return categories.documents;
+    } catch (e) {
         throw new Error(e as string);
     }
 }
