@@ -4,8 +4,8 @@ import {images} from "@/constants";
 import useAuthStore from "@/store/auth.store";
 
 export default function AuthLayout() {
-    const { isAuthenticated } = useAuthStore();
-
+   //  const { isAuthenticated } = useAuthStore();
+    const isAuthenticated = true; // Temporary hardcoded value for demonstration
     if(isAuthenticated) return <Redirect href="/" />
 
     return (

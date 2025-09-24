@@ -1,3 +1,7 @@
+
+import { databases } from "./appwrite"; // Import your Appwrite client
+import { ID } from "react-native-appwrite";
+
 const dummyData = {
     categories: [
         { name: "Burgers", description: "Juicy grilled burgers" },
@@ -222,4 +226,46 @@ const dummyData = {
     ],
 };
 
-export default dummyData; 
+export default async function seed(): Promise<void> {
+  try {
+    console.log("Seeding started...");
+
+    // Seed categories
+    for (const category of dummyData.categories) {
+      await databases.createDocument(
+        "yourDatabaseId", // Replace with your DB ID
+        "categoriesCollection", // Replace with your categories collection ID
+        ID.unique(),
+        category
+      );
+      console.log(`Category seeded: ${category.name}`);
+    }
+
+    // Seed customizations
+    for (const customization of dummyData.customizations) {
+      await databases.createDocument(
+        "yourDatabaseId",
+        "customizationsCollection",
+        ID.unique(),
+        customization
+      );
+      console.log(`Customization seeded: ${customization.name}`);
+    }
+
+    // Seed menu items
+    for (const menuItem of dummyData.menu) {
+      await databases.createDocument(
+        "yourDatabaseId",
+        "menuCollection",
+        ID.unique(),
+        menuItem
+      );
+      console.log(`Menu item seeded: ${menuItem.name}`);
+    }
+
+    console.log("Seeding completed successfully!");
+  } catch (error) {
+    console.error("Seed failed:", error);
+    throw error; // Re-throw so .catch() works
+  }
+}
