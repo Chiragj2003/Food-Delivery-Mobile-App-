@@ -25,6 +25,16 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Seeding Appwrite with demo data
+
+To populate your Appwrite instance with the sample menu, open the **Search** tab in the app and tap **Seed**.
+The button calls the refactored `lib/seed.ts` helper, which now:
+
+- Upserts categories, customizations, and menu entries so you can rerun it safely.
+- Stores the linked category identifier so filtering continues to work.
+
+Make sure you have the required Appwrite credentials configured in your environment (`EXPO_PUBLIC_APPWRITE_*`).
+
 ## Get a fresh project
 
 When you're ready, run:
