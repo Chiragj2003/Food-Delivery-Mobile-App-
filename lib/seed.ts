@@ -1,271 +1,120 @@
+import { ID, Query } from "react-native-appwrite";
 
-import { databases } from "./appwrite"; // Import your Appwrite client
-import { ID } from "react-native-appwrite";
+import { appwriteConfig, databases } from "./appwrite";
+import seedData from "./data";
 
-const dummyData = {
-    categories: [
-        { name: "Burgers", description: "Juicy grilled burgers" },
-        { name: "Pizzas", description: "Oven-baked cheesy pizzas" },
-        { name: "Burritos", description: "Rolled Mexican delights" },
-        { name: "Sandwiches", description: "Stacked and stuffed sandwiches" },
-        { name: "Wraps", description: "Rolled up wraps packed with flavor" },
-        { name: "Bowls", description: "Balanced rice and protein bowls" },
-    ],
+type SeedCategory = (typeof seedData.categories)[number];
+type SeedCustomization = (typeof seedData.customizations)[number];
+type SeedMenuItem = (typeof seedData.menu)[number];
 
-    customizations: [
-        // Toppings
-        { name: "Extra Cheese", price: 25, type: "topping" },
-        { name: "Jalapeños", price: 20, type: "topping" },
-        { name: "Onions", price: 10, type: "topping" },
-        { name: "Olives", price: 15, type: "topping" },
-        { name: "Mushrooms", price: 18, type: "topping" },
-        { name: "Tomatoes", price: 10, type: "topping" },
-        { name: "Bacon", price: 30, type: "topping" },
-        { name: "Avocado", price: 35, type: "topping" },
+const databaseId = appwriteConfig.databaseId;
 
-        // Sides
-        { name: "Coke", price: 30, type: "side" },
-        { name: "Fries", price: 35, type: "side" },
-        { name: "Garlic Bread", price: 40, type: "side" },
-        { name: "Chicken Nuggets", price: 50, type: "side" },
-        { name: "Iced Tea", price: 28, type: "side" },
-        { name: "Salad", price: 33, type: "side" },
-        { name: "Potato Wedges", price: 38, type: "side" },
-        { name: "Mozzarella Sticks", price: 45, type: "side" },
-        { name: "Sweet Corn", price: 25, type: "side" },
-        { name: "Choco Lava Cake", price: 42, type: "side" },
-    ],
+const ensureDocument = async <T extends Record<string, unknown>>(
+    collectionId: string,
+    uniqueField: keyof T,
+    payload: T
+): Promise<string> => {
+    const uniqueValue = payload[uniqueField];
 
-    menu: [
-        {
-            name: "Classic Cheeseburger",
-            description: "Beef patty, cheese, lettuce, tomato",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/044/844/600/large_2x/homemade-fresh-tasty-burger-with-meat-and-cheese-classic-cheese-burger-and-vegetable-ai-generated-free-png.png",
-            price: 25.99,
-            rating: 4.5,
-            calories: 550,
-            protein: 25,
-            category_name: "Burgers",
-            customizations: ["Extra Cheese", "Coke", "Fries", "Onions", "Bacon"],
-        },
-        {
-            name: "Pepperoni Pizza",
-            description: "Loaded with cheese and pepperoni slices",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/023/742/417/large_2x/pepperoni-pizza-isolated-illustration-ai-generative-free-png.png",
-            price: 30.99,
-            rating: 4.7,
-            calories: 700,
-            protein: 30,
-            category_name: "Pizzas",
-            customizations: [
-                "Extra Cheese",
-                "Jalapeños",
-                "Garlic Bread",
-                "Coke",
-                "Olives",
-            ],
-        },
-        {
-            name: "Bean Burrito",
-            description: "Stuffed with beans, rice, salsa",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/055/133/581/large_2x/deliciously-grilled-burritos-filled-with-beans-corn-and-fresh-vegetables-served-with-lime-wedge-and-cilantro-isolated-on-transparent-background-free-png.png",
-            price: 20.99,
-            rating: 4.2,
-            calories: 480,
-            protein: 18,
-            category_name: "Burritos",
-            customizations: ["Jalapeños", "Iced Tea", "Fries", "Salad"],
-        },
-        {
-            name: "BBQ Bacon Burger",
-            description: "Smoky BBQ sauce, crispy bacon, cheddar",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/060/236/245/large_2x/a-large-hamburger-with-cheese-onions-and-lettuce-free-png.png",
-            price: 27.5,
-            rating: 4.8,
-            calories: 650,
-            protein: 29,
-            category_name: "Burgers",
-            customizations: ["Onions", "Fries", "Coke", "Bacon", "Avocado"],
-        },
-        {
-            name: "Chicken Caesar Wrap",
-            description: "Grilled chicken, lettuce, Caesar dressing",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/048/930/603/large_2x/caesar-wrap-grilled-chicken-isolated-on-transparent-background-free-png.png",
-            price: 21.5,
-            rating: 4.4,
-            calories: 490,
-            protein: 28,
-            category_name: "Wraps",
-            customizations: ["Extra Cheese", "Coke", "Potato Wedges", "Tomatoes"],
-        },
-        {
-            name: "Grilled Veggie Sandwich",
-            description: "Roasted veggies, pesto, cheese",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/047/832/012/large_2x/grilled-sesame-seed-bread-veggie-sandwich-with-tomato-and-onion-free-png.png",
-            price: 19.99,
-            rating: 4.1,
-            calories: 420,
-            protein: 19,
-            category_name: "Sandwiches",
-            customizations: ["Mushrooms", "Olives", "Mozzarella Sticks", "Iced Tea"],
-        },
-        {
-            name: "Double Patty Burger",
-            description: "Two juicy beef patties and cheese",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/060/359/627/large_2x/double-cheeseburger-with-lettuce-tomatoes-cheese-and-sesame-bun-free-png.png",
-            price: 32.99,
-            rating: 4.9,
-            calories: 720,
-            protein: 35,
-            category_name: "Burgers",
-            customizations: [
-                "Extra Cheese",
-                "Onions",
-                "Fries",
-                "Coke",
-                "Chicken Nuggets",
-            ],
-        },
-        {
-            name: "Paneer Tikka Wrap",
-            description: "Spicy paneer, mint chutney, veggies",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/057/913/530/large_2x/delicious-wraps-a-tantalizing-array-of-wraps-filled-with-vibrant-vegetables-succulent-fillings-and-fresh-ingredients-artfully-arranged-for-a-mouthwatering-culinary-experience-free-png.png",
-            price: 23.99,
-            rating: 4.6,
-            calories: 470,
-            protein: 20,
-            category_name: "Wraps",
-            customizations: ["Jalapeños", "Tomatoes", "Salad", "Fries", "Iced Tea"],
-        },
-        {
-            name: "Mexican Burrito Bowl",
-            description: "Rice, beans, corn, guac, salsa",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/057/466/374/large_2x/healthy-quinoa-bowl-with-avocado-tomato-and-black-beans-ingredients-free-png.png",
-            price: 26.49,
-            rating: 4.7,
-            calories: 610,
-            protein: 24,
-            category_name: "Bowls",
-            customizations: ["Avocado", "Sweet Corn", "Salad", "Iced Tea"],
-        },
-        {
-            name: "Spicy Chicken Sandwich",
-            description: "Crispy chicken, spicy sauce, pickles",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/051/814/008/large_2x/a-grilled-chicken-sandwich-with-lettuce-and-tomatoes-free-png.png",
-            price: 24.99,
-            rating: 4.3,
-            calories: 540,
-            protein: 26,
-            category_name: "Sandwiches",
-            customizations: [
-                "Jalapeños",
-                "Onions",
-                "Fries",
-                "Coke",
-                "Choco Lava Cake",
-            ],
-        },
-        {
-            name: "Classic Margherita Pizza",
-            description: "Tomato, mozzarella, fresh basil",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/058/700/845/large_2x/free-isolated-on-transparent-background-delicious-pizza-topped-with-fresh-tomatoes-basil-and-melted-cheese-perfect-for-food-free-png.png",
-            price: 26.99,
-            rating: 4.1,
-            calories: 590,
-            protein: 21,
-            category_name: "Pizzas",
-            customizations: ["Extra Cheese", "Olives", "Coke", "Garlic Bread"],
-        },
-        {
-            name: "Protein Power Bowl",
-            description: "Grilled chicken, quinoa, veggies",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/056/106/379/large_2x/top-view-salad-with-chicken-avocado-tomatoes-and-lettuce-free-png.png",
-            price: 29.99,
-            rating: 4.8,
-            calories: 580,
-            protein: 38,
-            category_name: "Bowls",
-            customizations: ["Avocado", "Salad", "Sweet Corn", "Iced Tea"],
-        },
-        {
-            name: "Paneer Burrito",
-            description: "Paneer cubes, spicy masala, rice, beans",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/056/565/254/large_2x/burrito-with-cauliflower-and-vegetables-free-png.png",
-            price: 24.99,
-            rating: 4.2,
-            calories: 510,
-            protein: 22,
-            category_name: "Burritos",
-            customizations: ["Jalapeños", "Fries", "Garlic Bread", "Coke"],
-        },
-        {
-            name: "Chicken Club Sandwich",
-            description: "Grilled chicken, lettuce, cheese, tomato",
-            image_url:
-                "https://static.vecteezy.com/system/resources/previews/060/364/135/large_2x/a-flavorful-club-sandwich-with-turkey-bacon-and-fresh-vegetables-sliced-and-isolated-on-a-transparent-background-free-png.png",
-            price: 27.49,
-            rating: 4.5,
-            calories: 610,
-            protein: 31,
-            category_name: "Sandwiches",
-            customizations: ["Bacon", "Tomatoes", "Mozzarella Sticks", "Iced Tea"],
-        },
-    ],
+    if (uniqueValue === undefined || uniqueValue === null) {
+        throw new Error(
+            `Missing unique field "${String(uniqueField)}" in payload: ${JSON.stringify(payload)}`
+        );
+    }
+
+    const existing = await databases.listDocuments(
+        databaseId,
+        collectionId,
+        [Query.equal(String(uniqueField), uniqueValue as string | number)]
+    );
+
+        if (existing.total > 0) {
+            const document = existing.documents[0];
+            await databases.updateDocument(databaseId, collectionId, document.$id, payload);
+            return document.$id;
+    }
+
+    const document = await databases.createDocument(
+        databaseId,
+        collectionId,
+        ID.unique(),
+        payload
+    );
+
+        return document.$id;
 };
 
-export default async function seed(): Promise<void> {
-  try {
-    console.log("Seeding started...");
+const seedCategories = async () => {
+    const categoriesByName = new Map<string, string>();
 
-    // Seed categories
-    for (const category of dummyData.categories) {
-      await databases.createDocument(
-        "yourDatabaseId", // Replace with your DB ID
-        "categoriesCollection", // Replace with your categories collection ID
-        ID.unique(),
-        category
-      );
-      console.log(`Category seeded: ${category.name}`);
+    for (const category of seedData.categories) {
+        const categoryId = await ensureDocument<SeedCategory>(
+            appwriteConfig.categoriesCollectionId,
+            "name",
+            category
+        );
+
+        categoriesByName.set(category.name, categoryId);
+        console.log(`[seed] category ready: ${category.name}`);
     }
 
-    // Seed customizations
-    for (const customization of dummyData.customizations) {
-      await databases.createDocument(
-        "yourDatabaseId",
-        "customizationsCollection",
-        ID.unique(),
-        customization
-      );
-      console.log(`Customization seeded: ${customization.name}`);
-    }
+    return categoriesByName;
+};
 
-    // Seed menu items
-    for (const menuItem of dummyData.menu) {
-      await databases.createDocument(
-        "yourDatabaseId",
-        "menuCollection",
-        ID.unique(),
-        menuItem
-      );
-      console.log(`Menu item seeded: ${menuItem.name}`);
+const seedCustomizations = async () => {
+    for (const customization of seedData.customizations) {
+        await ensureDocument<SeedCustomization>(
+            appwriteConfig.customizationsCollectionId,
+            "name",
+            customization
+        );
+        console.log(`[seed] customization ready: ${customization.name}`);
     }
+};
 
-    console.log("Seeding completed successfully!");
-  } catch (error) {
-    console.error("Seed failed:", error);
-    throw error; // Re-throw so .catch() works
-  }
-}
+const seedMenu = async (categoriesByName: Map<string, string>) => {
+    for (const menuItem of seedData.menu) {
+        const categoryId = categoriesByName.get(menuItem.category_name);
+
+        if (!categoryId) {
+            console.warn(
+                `[seed] skipped menu item "${menuItem.name}" – missing category: ${menuItem.category_name}`
+            );
+            continue;
+        }
+
+        const payload = {
+            name: menuItem.name,
+            description: menuItem.description,
+            image_url: menuItem.image_url,
+            price: menuItem.price,
+            rating: menuItem.rating,
+            calories: menuItem.calories,
+            protein: menuItem.protein,
+            categories: categoryId,
+            customizations: menuItem.customizations,
+        } satisfies Omit<SeedMenuItem, "category_name"> & { categories: string };
+
+        await ensureDocument<typeof payload>(appwriteConfig.menuCollectionId, "name", payload);
+        console.log(`[seed] menu ready: ${menuItem.name}`);
+    }
+};
+
+export const getSeedData = () => seedData;
+
+const seed = async (): Promise<void> => {
+    try {
+        console.log("[seed] started");
+
+        const categoriesByName = await seedCategories();
+        await seedCustomizations();
+        await seedMenu(categoriesByName);
+
+        console.log("[seed] completed successfully");
+    } catch (error) {
+        console.error("[seed] failed", error);
+        throw error;
+    }
+};
+
+export default seed;
