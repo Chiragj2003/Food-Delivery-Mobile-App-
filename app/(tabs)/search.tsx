@@ -16,14 +16,30 @@ import SearchBar from "@/Components/SearchBar";
 import seed from "@/lib/seed";
 
 const Search = () => {
-  const { category, query } = useLocalSearchParams<{
-    query: string;
-    category: string;
+  const params = useLocalSearchParams<{
+    query?: string | string[];
+    category?: string | string[];
   }>();
+
+  const rawCategory = Array.isArray(params.category)
+    ? params.category[0]
+    : params.category ?? "";
+  const categoryParam =
+    rawCategory && rawCategory !== "undefined" && rawCategory !== "all"
+      ? rawCategory
+      : "";
+
+  const rawQuery = Array.isArray(params.query)
+    ? params.query[0]
+    : params.query ?? "";
+  const queryParam =
+    rawQuery && rawQuery !== "undefined"
+      ? rawQuery
+      : "";
 
   const { data, refetch, loading } = useAppwrite({
     fn: getMenu,
-    params: { category, query, limit: 6 },
+    params: { category: categoryParam, query: queryParam, limit: 6 },
   });
 
   const { data: categories } = useAppwrite({ fn: getCategories });
@@ -31,8 +47,8 @@ const Search = () => {
   const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
-    refetch({ category, query, limit: 6 });
-  }, [category, query]);
+    refetch({ category: categoryParam, query: queryParam, limit: 6 });
+  }, [categoryParam, queryParam]);
 
   const handleSeed = async () => {
     setSeeding(true);
