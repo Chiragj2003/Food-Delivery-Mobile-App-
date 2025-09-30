@@ -1,8 +1,11 @@
-import {View, Text, TouchableOpacity, ActivityIndicator} from 'react-native'
-import React from 'react'
-import {CustomButtonProps} from "@/type";
+import { CustomButtonProps } from "@/type";
 import cn from "clsx";
+import React from 'react';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 
+/**
+ * Reusable button that supports loading states and optional leading icons.
+ */
 const CustomButton = ({
     onPress,
     title="Click Me",

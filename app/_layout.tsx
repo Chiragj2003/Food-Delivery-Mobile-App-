@@ -1,30 +1,36 @@
-import {SplashScreen, Stack} from "expo-router";
-import { useFonts } from 'expo-font';
-import { useEffect} from "react";
-import './global.css';
-// import * as Sentry from '@sentry/react-native';
+import * as Sentry from "@sentry/react-native";
+import type { Integration } from "@sentry/types";
+import { useFonts } from "expo-font";
+import { SplashScreen, Stack } from "expo-router";
+import { useEffect } from "react";
+import "./global.css";
 
-// Sentry.init({
-//   dsn: 'https://fc0d7f5be76a2a7f47008c2c75d2576e@o4509938187173888.ingest.us.sentry.io/4509938194186240',
+const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 
-//   // Adds more context data to events (IP address, cookies, user, etc.)
-//   // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
-//   sendDefaultPii: true,
+if (sentryDsn && !Sentry.getClient()) {
+  Sentry.init({
+    dsn: sentryDsn,
+    sendDefaultPii: true,
+    enableAutoSessionTracking: true,
+    tracesSampleRate: 1.0,
+    integrations: (defaultIntegrations: Integration[]) => {
+      const extraIntegrations = [
+        Sentry.mobileReplayIntegration?.(),
+        Sentry.feedbackIntegration?.(),
+      ].filter(Boolean) as Integration[];
 
-//   // Configure Session Replay
-//   replaysSessionSampleRate: 0.1,
-//   replaysOnErrorSampleRate: 1,
-//   integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
-
-//   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
-//   // spotlight: __DEV__,
-// });
+      return [...defaultIntegrations, ...extraIntegrations];
+    },
+  });
+} else if (!sentryDsn && __DEV__) {
+  console.info("Sentry DSN not provided. Skipping Sentry initialization.");
+}
 
 
-// export default Sentry.wrap(
-
-
-export default function RootLayout() {
+/**
+ * Loads custom fonts before mounting the router stack for the application.
+ */
+function RootLayout() {
 
   const [fontsLoaded, error] = useFonts({
     "QuickSand-Bold": require('../assets/fonts/Quicksand-Bold.ttf'),
@@ -48,3 +54,5 @@ export default function RootLayout() {
 
   return <Stack screenOptions={{headerShown:false}} />;
 }
+
+export default sentryDsn ? Sentry.wrap(RootLayout) : RootLayout;

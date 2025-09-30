@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert } from "react-native";
 
-interface UseAppwriteOptions<T, P extends Record<string, string | number>> {
+interface UseAppwriteOptions<T, P = undefined> {
     fn: (params: P) => Promise<T>;
     params?: P;
     skip?: boolean;
@@ -14,22 +14,34 @@ interface UseAppwriteReturn<T, P> {
     refetch: (newParams?: P) => Promise<void>;
 }
 
-const useAppwrite = <T, P extends Record<string, string | number>>({
-                                                                       fn,
-                                                                       params = {} as P,
-                                                                       skip = false,
-                                                                   }: UseAppwriteOptions<T, P>): UseAppwriteReturn<T, P> => {
+/**
+ * Reusable hook that wraps Appwrite queries, handling loading, error display, and manual refetching.
+ */
+const useAppwrite = <T, P = undefined>({
+    fn,
+    params = undefined as P,
+    skip = false,
+}: UseAppwriteOptions<T, P>): UseAppwriteReturn<T, P> => {
     const [data, setData] = useState<T | null>(null);
     const [loading, setLoading] = useState(!skip);
     const [error, setError] = useState<string | null>(null);
 
+    const paramsRef = useRef<P>(params);
+
+    useEffect(() => {
+        paramsRef.current = params;
+    }, [params]);
+
     const fetchData = useCallback(
-        async (fetchParams: P) => {
+        /**
+         * Executes the provided Appwrite function with the latest params and stores the results.
+         */
+        async (fetchParams?: P) => {
             setLoading(true);
             setError(null);
 
             try {
-                const result = await fn({ ...fetchParams });
+                const result = await fn((fetchParams ?? paramsRef.current) as P);
                 setData(result);
             } catch (err: unknown) {
                 const errorMessage =
@@ -45,11 +57,23 @@ const useAppwrite = <T, P extends Record<string, string | number>>({
 
     useEffect(() => {
         if (!skip) {
-            fetchData(params);
+            fetchData(paramsRef.current);
         }
-    }, []);
+    }, [fetchData, skip]);
 
-    const refetch = async (newParams?: P) => await fetchData(newParams!);
+    /**
+     * Allows callers to manually trigger the query with optional overrides.
+     */
+    const refetch = useCallback(
+        async (newParams?: P) => {
+            if (newParams !== undefined) {
+                paramsRef.current = newParams;
+            }
+
+            await fetchData(newParams ?? paramsRef.current);
+        },
+        [fetchData]
+    );
 
     return { data, loading, error, refetch };
 };

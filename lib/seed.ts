@@ -9,6 +9,10 @@ type SeedMenuItem = (typeof seedData.menu)[number];
 
 const databaseId = appwriteConfig.databaseId;
 
+/**
+ * Upserts a document by unique field and returns the resulting document id.
+ * Ensures repeat seeding runs are idempotent and do not duplicate records.
+ */
 const ensureDocument = async <T extends Record<string, unknown>>(
     collectionId: string,
     uniqueField: keyof T,
@@ -44,6 +48,9 @@ const ensureDocument = async <T extends Record<string, unknown>>(
         return document.$id;
 };
 
+/**
+ * Seeds the category collection and returns a name to document id lookup map.
+ */
 const seedCategories = async () => {
     const categoriesByName = new Map<string, string>();
 
@@ -61,6 +68,9 @@ const seedCategories = async () => {
     return categoriesByName;
 };
 
+/**
+ * Seeds customization options while keeping the operation idempotent.
+ */
 const seedCustomizations = async () => {
     for (const customization of seedData.customizations) {
         await ensureDocument<SeedCustomization>(
@@ -72,6 +82,9 @@ const seedCustomizations = async () => {
     }
 };
 
+/**
+ * Seeds menu entries while linking them to the seeded category records.
+ */
 const seedMenu = async (categoriesByName: Map<string, string>) => {
     for (const menuItem of seedData.menu) {
         const categoryId = categoriesByName.get(menuItem.category_name);
@@ -100,8 +113,14 @@ const seedMenu = async (categoriesByName: Map<string, string>) => {
     }
 };
 
+/**
+ * Exposes the raw seed payload so callers can inspect the generated data set.
+ */
 export const getSeedData = () => seedData;
 
+/**
+ * Executes the full seeding pipeline for categories, customizations, and menu items.
+ */
 const seed = async (): Promise<void> => {
     try {
         console.log("[seed] started");

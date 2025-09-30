@@ -1,8 +1,11 @@
 import { images } from '@/constants';
 import React from 'react';
-import { Text, View, StyleSheet,TouchableOpacity,Image } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 
 
+/**
+ * Floating cart entry point that displays the current item count badge.
+ */
 const CartButton: () => React.ReactElement = () => {
     const totalItems = 10;
 

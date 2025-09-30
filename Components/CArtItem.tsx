@@ -1,8 +1,11 @@
+import { images } from "@/constants";
 import { useCartStore } from "@/store/cart.store";
 import { CartItemType } from "@/type";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import {images} from "@/constants";
 
+/**
+ * Displays a cart line item with quantity controls connected to the cart store.
+ */
 const CartItem = ({ item }: { item: CartItemType }) => {
     const { increaseQty, decreaseQty, removeItem } = useCartStore();
 

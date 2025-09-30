@@ -1,7 +1,9 @@
- import {View, Text, Button, Alert} from 'react-native'
-import {Link, router} from "expo-router";
+ import { Text, View } from 'react-native';
 
 
+/**
+ * Placeholder cart screen that will display current basket details.
+ */
 const Cart = () => {
     
     return (

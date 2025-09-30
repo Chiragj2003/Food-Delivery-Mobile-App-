@@ -1,8 +1,11 @@
-import {View, Text, TextInput} from 'react-native'
-import {CustomInputProps} from "@/type";
-import {useState} from "react";
+import { CustomInputProps } from "@/type";
 import cn from "clsx";
+import { useState } from "react";
+import { Text, TextInput, View } from 'react-native';
 
+/**
+ * Styled text input that tracks focus to highlight the active field.
+ */
 const CustomInput = ({
     placeholder = 'Enter text',
     value,

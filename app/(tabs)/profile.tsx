@@ -1,7 +1,9 @@
-import {View, Text, Button, Alert} from 'react-native'
-import {Link, router} from "expo-router";
+import { Text, View } from 'react-native';
 
 
+/**
+ * Placeholder profile screen for future account management features.
+ */
 const Profile = () => {
     
     return (

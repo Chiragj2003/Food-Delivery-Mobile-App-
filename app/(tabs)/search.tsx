@@ -15,6 +15,9 @@ import SearchBar from "@/Components/SearchBar";
 // ✅ Default import for seed
 import seed from "@/lib/seed";
 
+/**
+ * Tab screen that lets users search and filter menu items, seed data, and browse results.
+ */
 const Search = () => {
   const params = useLocalSearchParams<{
     query?: string | string[];
@@ -47,9 +50,13 @@ const Search = () => {
   const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
+    // Refresh menu items whenever the query or category filter changes.
     refetch({ category: categoryParam, query: queryParam, limit: 6 });
   }, [categoryParam, queryParam]);
 
+  /**
+   * Seeds the Appwrite database with demo data when the Seed button is pressed.
+   */
   const handleSeed = async () => {
     setSeeding(true);
     try {

@@ -1,6 +1,9 @@
 import { CartCustomization, CartStore } from "@/type";
 import { create } from "zustand";
 
+/**
+ * Determines whether two customization arrays contain the same items regardless of order.
+ */
 function areCustomizationsEqual(
     a: CartCustomization[] = [],
     b: CartCustomization[] = []
@@ -13,9 +16,13 @@ function areCustomizationsEqual(
     return aSorted.every((item, idx) => item.id === bSorted[idx].id);
 }
 
+/**
+ * Zustand store that manages cart items, quantities, and price calculations.
+ */
 export const useCartStore = create<CartStore>((set, get) => ({
     items: [],
 
+    /** Adds a new item to the cart or increments its quantity if it already exists. */
     addItem: (item) => {
         const customizations = item.customizations ?? [];
 
@@ -41,6 +48,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
         }
     },
 
+    /** Removes an item from the cart, considering its customization combination. */
     removeItem: (id, customizations = []) => {
         set({
             items: get().items.filter(
@@ -53,6 +61,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
         });
     },
 
+    /** Increases the quantity of an item with matching customizations. */
     increaseQty: (id, customizations = []) => {
         set({
             items: get().items.map((i) =>
@@ -64,6 +73,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
         });
     },
 
+    /** Decreases the quantity and removes the entry if it reaches zero. */
     decreaseQty: (id, customizations = []) => {
         set({
             items: get()
@@ -77,11 +87,14 @@ export const useCartStore = create<CartStore>((set, get) => ({
         });
     },
 
+    /** Clears all items from the cart in a single action. */
     clearCart: () => set({ items: [] }),
 
+    /** Returns the total item count across the cart. */
     getTotalItems: () =>
         get().items.reduce((total, item) => total + item.quantity, 0),
 
+    /** Calculates the aggregated cart price including selected customizations. */
     getTotalPrice: () =>
         get().items.reduce((total, item) => {
             const base = item.price;

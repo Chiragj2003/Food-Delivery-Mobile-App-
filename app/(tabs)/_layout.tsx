@@ -1,10 +1,13 @@
-import {Redirect, Slot, Tabs} from "expo-router";
+import { images } from "@/constants";
 import useAuthStore from "@/store/auth.store";
-import {TabBarIconProps} from "@/type";
-import {Image, Text, View} from "react-native";
-import {images} from "@/constants";
+import { TabBarIconProps } from "@/type";
 import cn from "clsx";
+import { Redirect, Tabs } from "expo-router";
+import { Image, Text, View } from "react-native";
 
+/**
+ * Renders the icon and label for each bottom tab entry.
+ */
 const TabBarIcon = ({ focused, icon, title }: TabBarIconProps) => (
     <View className="tab-icon">
         <Image source={icon} className="size-7" resizeMode="contain" tintColor={focused ? '#FE8C00' : '#5D5F6D'} />
@@ -14,6 +17,9 @@ const TabBarIcon = ({ focused, icon, title }: TabBarIconProps) => (
     </View>
 )
 
+/**
+ * Wraps the tab navigator and guards access behind authentication.
+ */
 export default function TabLayout() {
     const { isAuthenticated } = useAuthStore();
 

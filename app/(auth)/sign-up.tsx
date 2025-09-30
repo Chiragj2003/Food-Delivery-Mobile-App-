@@ -1,14 +1,20 @@
-import {View, Text, Button, Alert} from 'react-native'
-import {Link, router} from "expo-router";
-import CustomInput from "@/Components/Custominput";
 import CustomButton from "@/Components/CustomButton";
-import {useState} from "react";
-import {createUser} from "@/lib/appwrite";
+import CustomInput from "@/Components/Custominput";
+import { createUser } from "@/lib/appwrite";
+import { Link, router } from "expo-router";
+import { useState } from "react";
+import { Alert, Text, View } from 'react-native';
 
+/**
+ * Sign-up form that provisions a new Appwrite account and profile document.
+ */
 const SignUp = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [form, setForm] = useState({ name: '', email: '', password: '' });
 
+    /**
+     * Validates the registration form and creates the user, handling success and error flows.
+     */
     const submit = async () => {
         const { name, email, password } = form;
 

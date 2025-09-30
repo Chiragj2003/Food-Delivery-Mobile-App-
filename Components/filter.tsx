@@ -4,6 +4,9 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Platform, Text, TouchableOpacity } from 'react-native';
 
+/**
+ * Horizontal pill list that updates the router category param when a filter is selected.
+ */
 const Filter = ({ categories }: { categories: Category[] }) => {
     const searchParams = useLocalSearchParams<{ category?: string | string[] }>();
     const rawCategory = Array.isArray(searchParams.category)
@@ -17,6 +20,9 @@ const Filter = ({ categories }: { categories: Category[] }) => {
         setActive(categoryParam);
     }, [categoryParam]);
 
+    /**
+     * Applies the selected category while avoiding redundant navigation updates.
+     */
     const handlePress = (id: string) => {
         setActive(id);
 

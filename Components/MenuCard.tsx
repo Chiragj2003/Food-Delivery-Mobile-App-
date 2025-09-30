@@ -1,8 +1,11 @@
-import {Text, TouchableOpacity, Image, Platform} from 'react-native'
-import {MenuItem} from "@/type";
-import {appwriteConfig} from "@/lib/appwrite";
-import {useCartStore} from "@/store/cart.store";
+import { appwriteConfig } from "@/lib/appwrite";
+import { useCartStore } from "@/store/cart.store";
+import { MenuItem } from "@/type";
+import { Image, Platform, Text, TouchableOpacity } from 'react-native';
 
+/**
+ * Presents a menu item with imagery and a shortcut to add it to the cart.
+ */
 const MenuCard = ({ item: { $id, image_url, name, price }}: { item: MenuItem}) => {
     const imageUrl = `${image_url}?project=${appwriteConfig.projectId}`;
     const { addItem } = useCartStore();

@@ -1,60 +1,68 @@
-# Welcome to your Expo app 👋
+# Fastfood – Expo + Appwrite Demo
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This project showcases a food-ordering experience built with **Expo SDK 54**, **React Native**, and **Appwrite**. It includes authentication flows, browsing/filtering of menu items, and a cart powered by Zustand state management.
 
-## Get started
+## Requirements
 
-1. Install dependencies
+- Node.js ≥ 18
+- npm ≥ 9
+- Expo CLI (`npm install -g expo-cli`) or `npx` usage
+- Expo Go **SDK 54** on your device/emulator (or run a custom dev client)
+- Appwrite project configured with the IDs stored in `.env.local`
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Seeding Appwrite with demo data
-
-To populate your Appwrite instance with the sample menu, open the **Search** tab in the app and tap **Seed**.
-The button calls the refactored `lib/seed.ts` helper, which now:
-
-- Upserts categories, customizations, and menu entries so you can rerun it safely.
-- Stores the linked category identifier so filtering continues to work.
-
-Make sure you have the required Appwrite credentials configured in your environment (`EXPO_PUBLIC_APPWRITE_*`).
-
-## Get a fresh project
-
-When you're ready, run:
+## Install & Run
 
 ```bash
-npm run reset-project
+npm install
+npx expo start --clear
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+When the Metro bundler starts you can press:
 
-## Learn more
+- `a` to launch Android (emulator or device)
+- `i` to launch iOS simulator (macOS only)
+- `w` to open the web build
+- Scan the QR code with Expo Go (SDK 54) to run on a device
 
-To learn more about developing your project with Expo, look at the following resources:
+> Tip: run `npx expo-doctor` if you change dependencies to keep the native module graph healthy.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Seeding Appwrite with Demo Data
 
-## Join the community
+The Search tab contains a **Seed** button that triggers `lib/seed.ts`:
 
-Join our community of developers creating universal apps.
+- Idempotently upserts categories, customizations, and menu entries
+- Connects menu items to category documents so filters stay accurate
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Ensure the following environment variables are set before seeding:
+
+- `EXPO_PUBLIC_APPWRITE_PROJECT_ID`
+- `EXPO_PUBLIC_APPWRITE_ENDPOINT`
+- `EXPO_PUBLIC_APPWRITE_PROJECT_NAME`
+
+## Project Structure
+
+- `app/` – Expo Router pages (`(auth)` stack, tab navigator, and feature screens)
+- `Components/` – Reusable UI pieces (buttons, inputs, cards, etc.)
+- `lib/` – Appwrite client, seed helpers, and shared data
+- `store/` – Zustand stores for auth and cart state
+- `constants/` – Static assets and mock content
+
+## Available Scripts
+
+| Script | Description |
+| --- | --- |
+| `npm start` | Alias for `expo start` |
+| `npm run android` | Launch the Android build |
+| `npm run ios` | Launch the iOS build |
+| `npm run web` | Launch the web preview |
+| `npm run lint` | Execute Expo's ESLint config |
+
+## Troubleshooting
+
+- **Expo Go complains about SDK 53/54 mismatch** – This project targets SDK 54. Update Expo Go or build a development client.
+- **SafeAreaView warning** – Only use `SafeAreaView` from `react-native-safe-area-context`; legacy imports will trigger warnings in RN 0.81.
+- **Seeding fails** – Double-check Appwrite credentials and network access. Errors are logged to the console for quick diagnosis.
+
+## Contributing
+
+Feel free to open issues or PRs that improve the UI, add tests, or expand the data set. Each helper and component now includes inline documentation to make onboarding easier.

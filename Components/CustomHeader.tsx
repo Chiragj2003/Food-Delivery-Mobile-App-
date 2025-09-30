@@ -1,9 +1,12 @@
 import { useRouter } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
+import { images } from "@/constants";
 import { CustomHeaderProps } from "@/type";
-import {images} from "@/constants";
 
+/**
+ * Header bar with a back button and optional title used across authenticated screens.
+ */
 const CustomHeader = ({ title }: CustomHeaderProps) => {
     const router = useRouter();
 
