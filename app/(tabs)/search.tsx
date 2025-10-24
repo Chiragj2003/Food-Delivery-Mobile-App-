@@ -5,7 +5,7 @@ import useAppwrite from "@/lib/useAppwrite";
 import { MenuItem } from "@/type";
 import cn from "clsx";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Button, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -40,19 +40,25 @@ const Search = () => {
       ? rawQuery
       : "";
 
-  const { data, refetch, loading } = useAppwrite({
+  // Memoize search params to prevent unnecessary re-fetches
+  const searchParams = useMemo(
+    () => ({ category: categoryParam, query: queryParam, limit: 6 }),
+    [categoryParam, queryParam]
+  );
+
+  const { data, loading, refetch } = useAppwrite({
     fn: getMenu,
-    params: { category: categoryParam, query: queryParam, limit: 6 },
+    params: searchParams,
   });
 
   const { data: categories } = useAppwrite({ fn: getCategories });
 
   const [seeding, setSeeding] = useState(false);
 
+  // Refetch when search params change
   useEffect(() => {
-    // Refresh menu items whenever the query or category filter changes.
-    refetch({ category: categoryParam, query: queryParam, limit: 6 });
-  }, [categoryParam, queryParam, refetch]);
+    refetch(searchParams);
+  }, [searchParams]);
 
   /**
    * Seeds the Appwrite database with demo data when the Seed button is pressed.
