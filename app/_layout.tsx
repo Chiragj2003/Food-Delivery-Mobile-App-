@@ -1,9 +1,9 @@
+import { initializeDatabase } from "@/lib/localDB";
 import * as Sentry from "@sentry/react-native";
 import type { Integration } from "@sentry/types";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
-import { initializeDatabase } from "@/lib/localDB";
 import "./global.css";
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
