@@ -3,6 +3,7 @@ import type { Integration } from "@sentry/types";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
+import { initializeDatabase } from "@/lib/localDB";
 import "./global.css";
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
@@ -45,7 +46,11 @@ function RootLayout() {
       console.error('Font loading error:', error);
       return;
     }
-    if(fontsLoaded) SplashScreen.hideAsync();
+    if(fontsLoaded) {
+      // Initialize local database with mock data
+      initializeDatabase();
+      SplashScreen.hideAsync();
+    }
   }, [fontsLoaded, error]);
 
   if(error) {

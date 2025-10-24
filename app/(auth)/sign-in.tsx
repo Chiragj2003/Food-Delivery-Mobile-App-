@@ -1,39 +1,40 @@
 import CustomButton from "@/Components/CustomButton";
 import CustomInput from "@/Components/Custominput";
-import { signIn } from "@/lib/appwrite";
-import * as Sentry from '@sentry/react-native';
+import useAuthStore from "@/store/auth.store";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import { Alert, Text, View } from 'react-native';
 
 /**
- * Sign-in form that authenticates users with Appwrite credentials.
+ * Sign-in form - simplified local authentication
  */
 const SignIn = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [form, setForm] = useState({ email: '', password: '' });
+    const { setUser } = useAuthStore();
 
     /**
-     * Validates the form and signs the user in, surfacing any Appwrite errors to the UI.
+     * Simple local sign-in
      */
     const submit = async () => {
         const { email, password } = form;
 
         if(!email || !password) return Alert.alert('Error', 'Please enter valid email address & password.');
 
-        setIsSubmitting(true)
+        setIsSubmitting(true);
 
         try {
-            await signIn({ email, password });
+            // Simple local authentication - just store user data
+            setUser({
+                $id: '1',
+                name: email.split('@')[0],
+                email,
+            });
 
             router.replace('/');
         } catch(error: unknown) {
             const message = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
             Alert.alert('Error', message);
-
-            if (Sentry.getClient()) {
-                Sentry.captureException(error);
-            }
         } finally {
             setIsSubmitting(false);
         }

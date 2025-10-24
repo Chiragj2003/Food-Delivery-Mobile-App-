@@ -1,26 +1,24 @@
-import { Models } from "react-native-appwrite";
-
-export interface MenuItem extends Models.Document {
+export interface MenuItem {
+    $id: string;
     name: string;
     price: number;
-    image_url: string;
-    description: string;
-    calories: number;
-    protein: number;
-    rating: number;
-    categories: string;
-    customizations: string[];
+    image: any; // Local image require()
+    description?: string;
+    rating?: number;
+    category?: string;
 }
 
-export interface Category extends Models.Document {
+export interface Category {
+    $id: string;
     name: string;
     description: string;
 }
 
-export interface User extends Models.Document {
+export interface User {
+    $id: string;
     name: string;
     email: string;
-    avatar: string;
+    avatar?: string;
 }
 
 export interface CartCustomization {

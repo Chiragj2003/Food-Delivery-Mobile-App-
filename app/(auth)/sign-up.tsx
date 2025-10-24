@@ -1,29 +1,35 @@
 import CustomButton from "@/Components/CustomButton";
 import CustomInput from "@/Components/Custominput";
-import { createUser } from "@/lib/appwrite";
+import useAuthStore from "@/store/auth.store";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import { Alert, Text, View } from 'react-native';
 
 /**
- * Sign-up form that provisions a new Appwrite account and profile document.
+ * Sign-up form - simplified local registration
  */
 const SignUp = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [form, setForm] = useState({ name: '', email: '', password: '' });
+    const { setUser } = useAuthStore();
 
     /**
-     * Validates the registration form and creates the user, handling success and error flows.
+     * Simple local sign-up
      */
     const submit = async () => {
         const { name, email, password } = form;
 
-        if(!name || !email || !password) return Alert.alert('Error', 'Please enter valid email address & password.');
+        if(!name || !email || !password) return Alert.alert('Error', 'Please fill in all fields.');
 
-        setIsSubmitting(true)
+        setIsSubmitting(true);
 
         try {
-            await createUser({ email,  password,  name });
+            // Simple local registration - just store user data
+            setUser({
+                $id: '1',
+                name,
+                email,
+            });
 
             router.replace('/');
         } catch(error: any) {

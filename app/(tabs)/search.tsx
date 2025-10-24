@@ -1,19 +1,16 @@
 import CartButton from "@/Components/CartButton";
 import MenuCard from "@/Components/MenuCard";
-import { getCategories, getMenu } from "@/lib/appwrite";
-import useAppwrite from "@/lib/useAppwrite";
+import { getCategories, getMenu, seed } from "@/lib/localDB";
+import useLocalData from "@/lib/useLocalData";
 import { MenuItem } from "@/type";
 import cn from "clsx";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ActivityIndicator, Button, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import Filter from "@/Components/filter";
 import SearchBar from "@/Components/SearchBar";
-
-// ✅ Default import for seed
-import seed from "@/lib/seed";
 
 /**
  * Tab screen that lets users search and filter menu items, seed data, and browse results.
@@ -40,33 +37,29 @@ const Search = () => {
       ? rawQuery
       : "";
 
-  // Memoize search params to prevent unnecessary re-fetches
+  // Simple params object - hook will auto-refetch when it changes
   const searchParams = useMemo(
     () => ({ category: categoryParam, query: queryParam, limit: 6 }),
     [categoryParam, queryParam]
   );
 
-  const { data, loading, refetch } = useAppwrite({
+  const { data, loading, refetch } = useLocalData({
     fn: getMenu,
     params: searchParams,
   });
 
-  const { data: categories } = useAppwrite({ fn: getCategories });
+  const { data: categories } = useLocalData({ fn: getCategories });
 
   const [seeding, setSeeding] = useState(false);
 
-  // Refetch when search params change
-  useEffect(() => {
-    refetch(searchParams);
-  }, [searchParams]);
-
   /**
-   * Seeds the Appwrite database with demo data when the Seed button is pressed.
+   * Seeds the local database with demo data when the Seed button is pressed.
    */
   const handleSeed = async () => {
     setSeeding(true);
     try {
       await seed();
+      refetch(); // Refresh the data after seeding
       console.log("Seeding completed!");
     } catch (error) {
       console.error("Failed to seed:", error);

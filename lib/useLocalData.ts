@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { Alert } from "react-native";
 
-interface UseAppwriteOptions<T, P = undefined> {
-    fn: (params: P) => Promise<T>;
+interface UseLocalDataOptions<T, P = undefined> {
+    fn: (params?: P) => Promise<T>;
     params?: P;
-    skip?: boolean;
 }
 
-interface UseAppwriteReturn<T, P> {
+interface UseLocalDataReturn<T> {
     data: T | null;
     loading: boolean;
     error: string | null;
@@ -15,22 +13,18 @@ interface UseAppwriteReturn<T, P> {
 }
 
 /**
- * Simple hook for Appwrite queries - automatically refetches when params change
+ * Simple hook for local data fetching - no complex dependencies
  */
-const useAppwrite = <T, P = undefined>({
+const useLocalData = <T, P = undefined>({
     fn,
-    params = undefined as P,
-    skip = false,
-}: UseAppwriteOptions<T, P>): UseAppwriteReturn<T, P> => {
+    params,
+}: UseLocalDataOptions<T, P>): UseLocalDataReturn<T> => {
     const [data, setData] = useState<T | null>(null);
-    const [loading, setLoading] = useState(!skip);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [trigger, setTrigger] = useState(0);
+    const [refresh, setRefresh] = useState(0);
 
-    // Simple fetch on mount and when params/trigger change
     useEffect(() => {
-        if (skip) return;
-
         let cancelled = false;
 
         const fetchData = async () => {
@@ -45,9 +39,9 @@ const useAppwrite = <T, P = undefined>({
             } catch (err: unknown) {
                 if (!cancelled) {
                     const errorMessage =
-                        err instanceof Error ? err.message : "An unknown error occurred";
+                        err instanceof Error ? err.message : "An error occurred";
                     setError(errorMessage);
-                    Alert.alert("Error", errorMessage);
+                    console.error('Error fetching data:', errorMessage);
                 }
             } finally {
                 if (!cancelled) {
@@ -61,13 +55,13 @@ const useAppwrite = <T, P = undefined>({
         return () => {
             cancelled = true;
         };
-    }, [skip, trigger, JSON.stringify(params)]);
+    }, [refresh, JSON.stringify(params)]);
 
     const refetch = () => {
-        setTrigger(prev => prev + 1);
+        setRefresh(prev => prev + 1);
     };
 
     return { data, loading, error, refetch };
 };
 
-export default useAppwrite;
+export default useLocalData;
