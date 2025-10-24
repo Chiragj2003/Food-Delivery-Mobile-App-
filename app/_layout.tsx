@@ -1,9 +1,10 @@
 import { initializeDatabase } from "@/lib/localDB";
+import useAuthStore from "@/store/auth.store";
 import * as Sentry from "@sentry/react-native";
 import type { Integration } from "@sentry/types";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import "./global.css";
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
@@ -32,6 +33,8 @@ if (sentryDsn && !Sentry.getClient()) {
  * Loads custom fonts before mounting the router stack for the application.
  */
 function RootLayout() {
+  const fetchAuthenticatedUser = useAuthStore((state) => state.fetchAuthenticatedUser);
+  const bootstrapRanRef = useRef(false);
 
   const [fontsLoaded, error] = useFonts({
     "QuickSand-Bold": require('../assets/fonts/Quicksand-Bold.ttf'),
@@ -42,16 +45,21 @@ function RootLayout() {
   });
 
   useEffect(() => {
+    if (bootstrapRanRef.current) return;
+
     if(error) {
       console.error('Font loading error:', error);
+      bootstrapRanRef.current = true;
       return;
     }
+
     if(fontsLoaded) {
-      // Initialize local database with mock data
+      bootstrapRanRef.current = true;
       initializeDatabase();
+      fetchAuthenticatedUser();
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, error]);
+  }, [fontsLoaded, error, fetchAuthenticatedUser]);
 
   if(error) {
     return null; // Or return an error component

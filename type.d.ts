@@ -1,3 +1,5 @@
+import type { ImageSourcePropType } from "react-native";
+
 export interface MenuItem {
     $id: string;
     name: string;
@@ -28,11 +30,11 @@ export interface CartCustomization {
     type: string;
 }
 
-export interface CartItemType {
+export interface CartItem {
     id: string; // menu item id
     name: string;
     price: number;
-    image_url: string;
+    imageSource: ImageSourcePropType;
     quantity: number;
     customizations?: CartCustomization[];
 }
@@ -40,9 +42,9 @@ export interface CartItemType {
 export interface CartStore {
     items: CartItem[];
     addItem: (item: Omit<CartItem, "quantity">) => void;
-    removeItem: (id: string, customizations: CartCustomization[]) => void;
-    increaseQty: (id: string, customizations: CartCustomization[]) => void;
-    decreaseQty: (id: string, customizations: CartCustomization[]) => void;
+    removeItem: (id: string, customizations?: CartCustomization[]) => void;
+    increaseQty: (id: string, customizations?: CartCustomization[]) => void;
+    decreaseQty: (id: string, customizations?: CartCustomization[]) => void;
     clearCart: () => void;
     getTotalItems: () => number;
     getTotalPrice: () => number;
@@ -68,6 +70,7 @@ interface CustomButtonProps {
     leftIcon?: React.ReactNode;
     textStyle?: string;
     isLoading?: boolean;
+    disabled?: boolean;
 }
 
 interface CustomHeaderProps {

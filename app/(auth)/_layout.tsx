@@ -1,4 +1,5 @@
 import { images } from "@/constants";
+import useAuthStore from "@/store/auth.store";
 import { Redirect, Slot } from "expo-router";
 import { Dimensions, Image, ImageBackground, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
@@ -6,8 +7,8 @@ import { Dimensions, Image, ImageBackground, KeyboardAvoidingView, Platform, Scr
  * Defines the layout for authentication screens with branding and keyboard handling.
  */
 export default function AuthLayout() {
-   //  const { isAuthenticated } = useAuthStore();
-    const isAuthenticated = true; // Temporary hardcoded value for demonstration
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
     if(isAuthenticated) return <Redirect href="/" />
 
     return (
