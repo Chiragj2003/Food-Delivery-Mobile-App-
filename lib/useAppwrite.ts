@@ -26,40 +26,47 @@ const useAppwrite = <T, P = undefined>({
     const [loading, setLoading] = useState(!skip);
     const [error, setError] = useState<string | null>(null);
 
+    // Store fn in ref to avoid dependency issues
+    const fnRef = useRef(fn);
     const paramsRef = useRef<P>(params);
+    const initialFetchDone = useRef(false);
+
+    // Update refs when they change
+    useEffect(() => {
+        fnRef.current = fn;
+    }, [fn]);
 
     useEffect(() => {
         paramsRef.current = params;
     }, [params]);
 
-    const fetchData = useCallback(
-        /**
-         * Executes the provided Appwrite function with the latest params and stores the results.
-         */
-        async (fetchParams?: P) => {
-            setLoading(true);
-            setError(null);
+    /**
+     * Executes the provided Appwrite function with the latest params and stores the results.
+     */
+    const fetchData = useCallback(async (fetchParams?: P) => {
+        setLoading(true);
+        setError(null);
 
-            try {
-                const result = await fn((fetchParams ?? paramsRef.current) as P);
-                setData(result);
-            } catch (err: unknown) {
-                const errorMessage =
-                    err instanceof Error ? err.message : "An unknown error occurred";
-                setError(errorMessage);
-                Alert.alert("Error", errorMessage);
-            } finally {
-                setLoading(false);
-            }
-        },
-        [fn]
-    );
+        try {
+            const result = await fnRef.current((fetchParams ?? paramsRef.current) as P);
+            setData(result);
+        } catch (err: unknown) {
+            const errorMessage =
+                err instanceof Error ? err.message : "An unknown error occurred";
+            setError(errorMessage);
+            Alert.alert("Error", errorMessage);
+        } finally {
+            setLoading(false);
+        }
+    }, []); // No dependencies - uses refs
 
+    // Initial fetch only
     useEffect(() => {
-        if (!skip) {
+        if (!skip && !initialFetchDone.current) {
+            initialFetchDone.current = true;
             fetchData(paramsRef.current);
         }
-    }, [fetchData, skip]);
+    }, [skip, fetchData]);
 
     /**
      * Allows callers to manually trigger the query with optional overrides.

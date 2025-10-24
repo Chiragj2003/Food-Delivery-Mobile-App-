@@ -52,7 +52,7 @@ const Search = () => {
   useEffect(() => {
     // Refresh menu items whenever the query or category filter changes.
     refetch({ category: categoryParam, query: queryParam, limit: 6 });
-  }, [categoryParam, queryParam]);
+  }, [categoryParam, queryParam, refetch]);
 
   /**
    * Seeds the Appwrite database with demo data when the Seed button is pressed.
