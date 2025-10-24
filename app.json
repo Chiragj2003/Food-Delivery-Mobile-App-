@@ -1,5 +1,3 @@
-
-
 {
   "expo": {
     "name": "fastfood",
@@ -18,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.chiragj2019.fastfood"
     },
     "web": {
       "bundler": "metro",
@@ -43,7 +42,8 @@
           "project": "react-native",
           "organization": "cj-rh"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
