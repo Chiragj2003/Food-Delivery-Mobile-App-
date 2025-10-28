@@ -1,5 +1,6 @@
 import { useCartStore } from "@/store/cart.store";
 import { MenuItem } from "@/type";
+import { useState } from "react";
 import { Image, Platform, Text, TouchableOpacity, View } from "react-native";
 
 interface FreshDropCardProps {
@@ -12,6 +13,7 @@ interface FreshDropCardProps {
  */
 const FreshDropCard = ({ item, onPressDetails }: FreshDropCardProps) => {
     const { addItem } = useCartStore();
+    const [isAdded, setIsAdded] = useState(false);
 
     const handleAdd = () => {
         addItem({
@@ -21,11 +23,13 @@ const FreshDropCard = ({ item, onPressDetails }: FreshDropCardProps) => {
             imageSource: item.image,
             customizations: [],
         });
+        setIsAdded(true);
+        setTimeout(() => setIsAdded(false), 600);
     };
 
     return (
         <View
-            className="w-44 h-48 mr-4 bg-white rounded-3xl p-4 shadow-md shadow-black/10"
+            className="w-36 h-40 mr-3 bg-white rounded-2xl p-3 shadow-md shadow-black/10"
             style={Platform.OS === "android" ? { elevation: 5, shadowColor: "#878787" } : {}}
         >
             <TouchableOpacity
@@ -33,23 +37,23 @@ const FreshDropCard = ({ item, onPressDetails }: FreshDropCardProps) => {
                 activeOpacity={0.85}
                 onPress={() => onPressDetails?.(item)}
             >
-                <Text className="small-bold text-primary uppercase">Fresh drop</Text>
-                <Text className="paragraph-bold text-dark-100 mt-2" numberOfLines={2}>
+                <Text className="text-[10px] font-quicksand-bold text-primary uppercase">Fresh drop</Text>
+                <Text className="text-sm font-quicksand-bold text-dark-100 mt-1" numberOfLines={2}>
                     {item.name}
                 </Text>
-                <Text className="body-regular text-gray-200 mt-1" numberOfLines={2}>
+                <Text className="text-xs font-quicksand text-gray-200 mt-0.5" numberOfLines={1}>
                     ${item.price.toFixed(2)}
                 </Text>
             </TouchableOpacity>
 
             <View className="flex-row items-end justify-between">
-                <Image source={item.image} className="size-16" resizeMode="contain" />
+                <Image source={item.image} className="size-12" resizeMode="contain" />
                 <TouchableOpacity
-                    className="px-3 py-2 bg-primary rounded-full"
+                    className={`px-2.5 py-1.5 rounded-full ${isAdded ? 'bg-green-500' : 'bg-primary'}`}
                     onPress={handleAdd}
                     activeOpacity={0.9}
                 >
-                    <Text className="small-bold text-white">Add</Text>
+                    <Text className="text-xs font-quicksand-bold text-white">{isAdded ? '✓' : 'Add'}</Text>
                 </TouchableOpacity>
             </View>
         </View>

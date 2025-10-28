@@ -40,7 +40,7 @@ const Search = () => {
 
   // Simple params object - hook will auto-refetch when it changes
   const searchParams = useMemo(
-    () => ({ category: categoryParam, query: queryParam, limit: 12 }),
+    () => ({ category: categoryParam, query: queryParam }),
     [categoryParam, queryParam]
   );
 
@@ -81,7 +81,7 @@ const Search = () => {
             <View
               className={cn(
                 "flex-1 max-w-[48%]",
-                !isFirstRightColItem ? "mt-10" : "mt-0"
+                !isFirstRightColItem ? "mt-6" : "mt-0"
               )}
             >
               <MenuCard item={item as unknown as MenuItem} />
@@ -90,7 +90,7 @@ const Search = () => {
         }}
         keyExtractor={(item) => item.$id}
         numColumns={2}
-        columnWrapperClassName="gap-7"
+        columnWrapperClassName="gap-4"
         contentContainerStyle={{ paddingBottom: 100 }}
         ListHeaderComponent={() => (
           <View className="px-5 pt-6 pb-4 gap-6">
@@ -189,7 +189,7 @@ const Search = () => {
           </View>
         )}
         ListHeaderComponentStyle={{ paddingHorizontal: 0 }}
-        columnWrapperStyle={{ paddingHorizontal: 20, gap: 28 }}
+        columnWrapperStyle={{ paddingHorizontal: 20, gap: 16 }}
         ListEmptyComponent={() =>
           !loading && (
             <View className="items-center justify-center py-10">

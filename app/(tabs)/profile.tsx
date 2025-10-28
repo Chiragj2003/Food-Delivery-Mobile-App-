@@ -1,12 +1,15 @@
 import CustomButton from "@/Components/CustomButton";
+import Custominput from "@/Components/Custominput";
 import { images } from "@/constants";
 import useAuthStore from "@/store/auth.store";
+import * as ImagePicker from 'expo-image-picker';
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
-import type { ImageSourcePropType } from "react-native";
+import { useEffect, useState } from "react";
 import {
+    ActionSheetIOS,
     Alert,
     Image,
+    Platform,
     ScrollView,
     Text,
     TouchableOpacity,
@@ -14,32 +17,111 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const ProfileField = ({
-    icon,
-    label,
-    value,
-}: {
-    icon: ImageSourcePropType;
-    label: string;
-    value: string;
-}) => (
-    <View className="profile-field bg-white rounded-2xl p-4 shadow-sm shadow-black/5">
-        <View className="profile-field__icon">
-            <Image source={icon} className="size-6" resizeMode="contain" />
-        </View>
-        <View>
-            <Text className="body-regular text-gray-400">{label}</Text>
-            <Text className="paragraph-bold text-dark-100">{value}</Text>
-        </View>
-    </View>
-);
-
 const Profile = () => {
-    const { user, logout } = useAuthStore();
+    const { user, logout, setUser } = useAuthStore();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    
+    // Editable fields
+    const [displayName, setDisplayName] = useState(user?.name ?? "");
+    const [phoneNumber, setPhoneNumber] = useState("");
+    const [address, setAddress] = useState("");
+    const [avatarUri, setAvatarUri] = useState(user?.avatar ?? "");
 
-    const displayName = useMemo(() => user?.name ?? "Guest", [user?.name]);
     const email = user?.email ?? "guest@example.com";
+
+    useEffect(() => {
+        setDisplayName(user?.name ?? "");
+        setAvatarUri(user?.avatar ?? "");
+    }, [user]);
+
+    const pickImageFromLibrary = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        
+        if (status !== 'granted') {
+            Alert.alert('Permission Denied', 'We need camera roll permissions to change your profile picture.');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+            setAvatarUri(result.assets[0].uri);
+            setIsEditing(true);
+        }
+    };
+
+    const pickImageFromCamera = async () => {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        
+        if (status !== 'granted') {
+            Alert.alert('Permission Denied', 'We need camera permissions to take a photo.');
+            return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+            setAvatarUri(result.assets[0].uri);
+            setIsEditing(true);
+        }
+    };
+
+    const handleEditAvatar = () => {
+        if (Platform.OS === 'ios') {
+            ActionSheetIOS.showActionSheetWithOptions(
+                {
+                    options: ['Cancel', 'Take Photo', 'Choose from Library'],
+                    cancelButtonIndex: 0,
+                },
+                (buttonIndex) => {
+                    if (buttonIndex === 1) {
+                        pickImageFromCamera();
+                    } else if (buttonIndex === 2) {
+                        pickImageFromLibrary();
+                    }
+                }
+            );
+        } else {
+            Alert.alert(
+                'Change Profile Picture',
+                'Choose an option',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Take Photo', onPress: pickImageFromCamera },
+                    { text: 'Choose from Library', onPress: pickImageFromLibrary },
+                ]
+            );
+        }
+    };
+
+    const handleSaveChanges = () => {
+        if (!displayName.trim()) {
+            Alert.alert('Error', 'Name cannot be empty');
+            return;
+        }
+        
+        // Update user profile with new data
+        if (user) {
+            setUser({
+                ...user,
+                name: displayName,
+                avatar: avatarUri,
+            });
+        }
+        
+        Alert.alert('Success', 'Your profile has been updated!');
+        setIsEditing(false);
+    };
 
     const handleLogout = async () => {
         try {
@@ -68,11 +150,14 @@ const Profile = () => {
                     <View className="items-center">
                         <View className="profile-avatar shadow-lg shadow-black/10">
                             <Image
-                                source={user?.avatar ? { uri: user.avatar } : images.avatar}
+                                source={avatarUri ? { uri: avatarUri } : images.avatar}
                                 className="size-full rounded-full"
                                 resizeMode="cover"
                             />
-                            <TouchableOpacity className="profile-edit">
+                            <TouchableOpacity 
+                                className="profile-edit"
+                                onPress={handleEditAvatar}
+                            >
                                 <Image
                                     source={images.pencil}
                                     className="size-3"
@@ -81,65 +166,67 @@ const Profile = () => {
                                 />
                             </TouchableOpacity>
                         </View>
-                        <Text className="h3-bold text-dark-100 mt-4">{displayName}</Text>
+                        <Text className="h3-bold text-dark-100 mt-4">{displayName || 'Guest'}</Text>
                         <Text className="body-regular text-gray-400">{email}</Text>
                     </View>
 
                     <View className="mt-8 gap-3">
-                        <ProfileField
-                            icon={images.person}
-                            label="Full name"
+                        <Custominput
+                            label="Full Name"
                             value={displayName}
+                            onChangeText={(text) => {
+                                setDisplayName(text);
+                                setIsEditing(true);
+                            }}
+                            placeholder="Enter your name"
                         />
-                        <ProfileField icon={images.envelope} label="Email" value={email} />
-                        <ProfileField
-                            icon={images.location}
-                            label="Delivery address"
-                            value="Add your delivery address"
+                        
+                        <View className="bg-white rounded-2xl p-4 shadow-sm shadow-black/5">
+                            <View className="flex-row items-center gap-3 mb-2">
+                                <Image source={images.envelope} className="size-6" resizeMode="contain" />
+                                <Text className="body-regular text-gray-400">Email</Text>
+                            </View>
+                            <Text className="paragraph-bold text-dark-100 ml-9">{email}</Text>
+                        </View>
+
+                        <Custominput
+                            label="Phone Number"
+                            value={phoneNumber}
+                            onChangeText={(text) => {
+                                setPhoneNumber(text);
+                                setIsEditing(true);
+                            }}
+                            placeholder="Enter your phone number"
+                            keyboardType="phone-pad"
                         />
-                        <ProfileField
-                            icon={images.phone}
-                            label="Phone number"
-                            value="Add your phone number"
+
+                        <Custominput
+                            label="Delivery Address"
+                            value={address}
+                            onChangeText={(text) => {
+                                setAddress(text);
+                                setIsEditing(true);
+                            }}
+                            placeholder="Enter your delivery address"
                         />
                     </View>
                 </View>
 
-                <View className="px-5 mt-10 gap-4">
-                    <CustomButton
-                        title="Manage payment methods"
-                        leftIcon={
-                            <Image
-                                source={images.dollar}
-                                className="size-5 mr-3"
-                                resizeMode="contain"
-                            />
-                        }
-                        style="bg-white border border-gray-100"
-                        textStyle="text-primary"
-                        onPress={() =>
-                            Alert.alert("Coming soon", "Payment management is on the way ✨")
-                        }
-                    />
-
-                    <CustomButton
-                        title="Order history"
-                        leftIcon={
-                            <Image
-                                source={images.clock}
-                                className="size-5 mr-3"
-                                resizeMode="contain"
-                            />
-                        }
-                        style="bg-white border border-gray-100"
-                        textStyle="text-primary"
-                        onPress={() =>
-                            Alert.alert(
-                                "Coming soon",
-                                "We'll show your past orders here shortly!"
-                            )
-                        }
-                    />
+                <View className="px-5 mt-8 gap-4">
+                    {isEditing && (
+                        <CustomButton
+                            title="Save Changes"
+                            leftIcon={
+                                <Image
+                                    source={images.check}
+                                    className="size-5 mr-3"
+                                    resizeMode="contain"
+                                />
+                            }
+                            style="bg-green-500"
+                            onPress={handleSaveChanges}
+                        />
+                    )}
 
                     <CustomButton
                         title="Log out"
