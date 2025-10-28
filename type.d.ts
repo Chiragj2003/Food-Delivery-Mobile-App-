@@ -8,6 +8,7 @@ export interface MenuItem {
     description?: string;
     rating?: number;
     category?: string;
+    isNew?: boolean;
 }
 
 export interface Category {

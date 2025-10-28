@@ -54,11 +54,11 @@
     }
 
     .filter {
-        @apply px-6 py-3 rounded-full mr-2 shadow-sm shadow-black/10;
+        @apply px-6 py-3 rounded-full mr-2 shadow-sm shadow-black/10 border border-transparent;
     }
 
     .menu-card {
-        @apply relative py-9 px-3.5 pt-24 flex items-center justify-end bg-white shadow-md shadow-black/10 rounded-3xl;
+        @apply relative px-5 pt-24 pb-6 flex items-start justify-end bg-white shadow-lg shadow-black/10 rounded-3xl overflow-hidden;
     }
 
     .profile-field {
@@ -70,19 +70,47 @@
     }
 
     .searchbar {
-        @apply relative flex flex-row items-center justify-center w-full bg-white shadow-md shadow-black/10 rounded-full  font-quicksand-medium text-dark-100 gap-5;
+        @apply relative flex flex-row items-center justify-center w-full bg-white shadow-md shadow-black/10 rounded-full font-quicksand-medium text-dark-100 gap-4 px-2;
     }
 
     .tab-icon {
-        @apply flex min-w-20 items-center justify-center min-h-full gap-1 mt-12;
+        @apply flex min-w-20 items-center justify-center min-h-full gap-1;
     }
 
     .offer-card {
-        @apply w-full h-48 my-3 rounded-xl overflow-hidden shadow-lg flex items-center gap-5;
+        @apply w-full h-48 my-3 rounded-3xl overflow-hidden shadow-lg flex items-center gap-5 px-6;
     }
 
     .offer-card__info {
-        @apply flex-1 h-full flex flex-col justify-center items-start gap-4;
+        @apply flex-1 h-full flex flex-col justify-center items-start gap-3;
+    }
+
+    .hero-card {
+        @apply relative overflow-hidden rounded-3xl px-6 py-8 bg-primary shadow-lg shadow-black/10;
+    }
+
+    .hero-card__image {
+        @apply absolute -top-12 -right-4 size-40 opacity-80;
+    }
+
+    .hero-card__pill {
+        @apply self-start rounded-full bg-white/15 px-4 py-1 body-medium text-white;
+    }
+
+    .hero-actions {
+        @apply flex flex-row gap-3 mt-6;
+    }
+
+    .hero-btn--solid {
+        @apply flex-1 flex flex-row items-center justify-center rounded-full bg-white py-3;
+    }
+
+    .hero-btn--ghost {
+        @apply flex-1 flex flex-row items-center justify-center rounded-full border border-white/60 py-3;
+    }
+
+    .section-heading {
+        @apply flex flex-row items-center justify-between mt-8 mb-2;
     }
 
     .profile-avatar {

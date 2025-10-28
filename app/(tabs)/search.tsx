@@ -1,16 +1,17 @@
 import CartButton from "@/Components/CartButton";
+import Filter from "@/Components/filter";
+import FreshDropCard from "@/Components/FreshDropCard";
 import MenuCard from "@/Components/MenuCard";
-import { getCategories, getMenu, seed } from "@/lib/localDB";
+import SearchBar from "@/Components/SearchBar";
+import { images } from "@/constants";
+import { getCategories, getFeaturedMenu, getMenu, seed } from "@/lib/localDB";
 import useLocalData from "@/lib/useLocalData";
 import { MenuItem } from "@/type";
 import cn from "clsx";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
-import { ActivityIndicator, Button, FlatList, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import Filter from "@/Components/filter";
-import SearchBar from "@/Components/SearchBar";
 
 /**
  * Tab screen that lets users search and filter menu items, seed data, and browse results.
@@ -39,7 +40,7 @@ const Search = () => {
 
   // Simple params object - hook will auto-refetch when it changes
   const searchParams = useMemo(
-    () => ({ category: categoryParam, query: queryParam, limit: 6 }),
+    () => ({ category: categoryParam, query: queryParam, limit: 12 }),
     [categoryParam, queryParam]
   );
 
@@ -49,6 +50,7 @@ const Search = () => {
   });
 
   const { data: categories } = useLocalData({ fn: getCategories });
+  const { data: freshDrops } = useLocalData({ fn: getFeaturedMenu, params: 6 });
 
   const [seeding, setSeeding] = useState(false);
 
@@ -69,18 +71,7 @@ const Search = () => {
   };
 
   return (
-    <SafeAreaView className="bg-white h-full">
-      {/* Header Section */}
-      <View className="px-5 py-3 flex-row justify-between items-center">
-        <Text className="text-xl font-bold">Search</Text>
-        {seeding ? (
-          <ActivityIndicator size="small" color="#667EEA" />
-        ) : (
-          <Button title="Seed" onPress={handleSeed} />
-        )}
-      </View>
-
-      {/* FlatList */}
+    <SafeAreaView className="bg-[#F8F9FB] flex-1" edges={['top']}>
       <FlatList
         data={data}
         renderItem={({ item, index }) => {
@@ -100,23 +91,84 @@ const Search = () => {
         keyExtractor={(item) => item.$id}
         numColumns={2}
         columnWrapperClassName="gap-7"
-        contentContainerClassName="gap-7 px-5 pb-32"
+        contentContainerStyle={{ paddingBottom: 100 }}
         ListHeaderComponent={() => (
-          <View className="my-5 gap-5">
-            <View className="flex-between flex-row w-full">
-              <View className="flex-start">
+          <View className="px-5 pt-6 pb-4 gap-6">
+            <View className="flex-between flex-row items-start">
+              <View className="gap-1">
                 <Text className="small-bold uppercase text-primary">Search</Text>
-                <View className="flex-start flex-row gap-x-1 mt-0.5">
-                  <Text className="paragraph-semibold text-dark-100">
-                    Find your favorite food
-                  </Text>
-                </View>
+                <Text className="h3-bold text-dark-100">Find your next craving</Text>
+                <Text className="body-regular text-gray-400">
+                  Explore categories or jump straight to favorites.
+                </Text>
               </View>
 
               <CartButton />
             </View>
 
+            <View className="flex-row items-center justify-between">
+              <TouchableOpacity
+                className="flex-row items-center gap-2 bg-primary/10 px-4 py-2 rounded-full"
+                onPress={handleSeed}
+                disabled={seeding}
+                activeOpacity={0.85}
+              >
+                {seeding ? (
+                  <ActivityIndicator size="small" color="#FE8C00" />
+                ) : (
+                  <Image
+                    source={images.bag}
+                    className="size-4"
+                    resizeMode="contain"
+                    tintColor="#FE8C00"
+                  />
+                )}
+                <Text className="paragraph-medium text-primary">
+                  {seeding ? 'Refreshing...' : 'Seed demo items'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="flex-row items-center gap-2 px-3 py-2 rounded-full border border-gray-100"
+                onPress={() => {
+                  router.setParams({ category: undefined, query: undefined });
+                  refetch();
+                }}
+                activeOpacity={0.85}
+              >
+                <Image
+                  source={images.arrowDown}
+                  className="size-3 rotate-180"
+                  resizeMode="contain"
+                  tintColor="#5D5F6D"
+                />
+                <Text className="body-medium text-gray-200">Clear filters</Text>
+              </TouchableOpacity>
+            </View>
+
             <SearchBar />
+
+            {freshDrops && freshDrops.length > 0 && (
+              <View className="gap-3">
+                <View className="section-heading">
+                  <Text className="h3-bold text-dark-100">Fresh drops</Text>
+                  <View className="flex-row items-center gap-1">
+                    <Image
+                      source={images.star}
+                      className="size-3"
+                      resizeMode="contain"
+                      tintColor="#FE8C00"
+                    />
+                    <Text className="body-medium text-gray-200">Newest arrivals</Text>
+                  </View>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 20 }}>
+                  {freshDrops.map((item: MenuItem) => (
+                    <FreshDropCard key={item.$id} item={item} />
+                  ))}
+                </ScrollView>
+              </View>
+            )}
 
             <Filter
               categories={
@@ -129,11 +181,31 @@ const Search = () => {
                   : []
               }
             />
+
+            <View className="section-heading mt-4">
+              <Text className="h3-bold text-dark-100">All items</Text>
+              <Text className="body-medium text-gray-200">{data?.length || 0} found</Text>
+            </View>
           </View>
         )}
+        ListHeaderComponentStyle={{ paddingHorizontal: 0 }}
+        columnWrapperStyle={{ paddingHorizontal: 20, gap: 28 }}
         ListEmptyComponent={() =>
-          !loading && <Text className="text-center mt-5">No results</Text>
+          !loading && (
+            <View className="items-center justify-center py-10">
+              <Image
+                source={images.emptyState}
+                className="size-32 mb-4"
+                resizeMode="contain"
+              />
+              <Text className="paragraph-bold text-dark-100 mb-2">No results found</Text>
+              <Text className="body-regular text-gray-400 text-center">
+                Try adjusting your search or filters
+              </Text>
+            </View>
+          )
         }
+        showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
   );

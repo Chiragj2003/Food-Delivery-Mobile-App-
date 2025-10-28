@@ -1,7 +1,7 @@
 import { images } from "@/constants";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Image, TextInput, TouchableOpacity, View } from "react-native";
+import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 /**
  * Search input that keeps local state in sync with router query parameters.
@@ -39,8 +39,16 @@ const Searchbar = () => {
 
     return (
         <View className="searchbar">
+            <View className="size-11 rounded-full bg-primary/10 items-center justify-center ml-2">
+                <Image
+                    source={images.search}
+                    className="size-5"
+                    resizeMode="contain"
+                    tintColor="#FE8C00"
+                />
+            </View>
             <TextInput
-                className="flex-1 p-5"
+                className="flex-1 py-4 px-3"
                 placeholder="Search for pizzas, burgers..."
                 value={query}
                 onChangeText={handleSearch}
@@ -49,7 +57,7 @@ const Searchbar = () => {
                 returnKeyType="search"
             />
             <TouchableOpacity
-                className="pr-5"
+                className="flex-row items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mr-2"
                 onPress={() => {
                     const trimmed = query.trim();
                     if(!trimmed && queryParam) {
@@ -60,12 +68,7 @@ const Searchbar = () => {
                     }
                 }}
             >
-                <Image
-                    source={images.search}
-                    className="size-6"
-                    resizeMode="contain"
-                    tintColor="#5D5F6D"
-                />
+                <Text className="paragraph-medium text-primary">Search</Text>
             </TouchableOpacity>
         </View>
     );

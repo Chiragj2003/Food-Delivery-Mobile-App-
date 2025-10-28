@@ -3,6 +3,7 @@ import { images } from "@/constants";
 import useAuthStore from "@/store/auth.store";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
+import type { ImageSourcePropType } from "react-native";
 import {
     Alert,
     Image,
@@ -11,7 +12,6 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import type { ImageSourcePropType } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const ProfileField = ({
@@ -58,10 +58,10 @@ const Profile = () => {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-[#F8F9FB]">
+        <SafeAreaView className="flex-1 bg-[#F8F9FB]" edges={['top']}>
             <ScrollView
                 className="flex-1"
-                contentContainerClassName="pb-32"
+                contentContainerStyle={{ paddingBottom: 120 }}
                 showsVerticalScrollIndicator={false}
             >
                 <View className="px-5 pt-4">
